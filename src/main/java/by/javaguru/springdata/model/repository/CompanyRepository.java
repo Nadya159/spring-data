@@ -1,28 +1,19 @@
 package by.javaguru.springdata.model.repository;
 
 import by.javaguru.springdata.model.entity.Company;
-import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
-@Slf4j
-@Repository
-public class CompanyRepository implements CrudRepository<Integer, Company>{
+public interface CompanyRepository extends JpaRepository<Company, Integer> {
 
-    @PostConstruct
-    private void init(){
-        log.warn("Init company repository");
-    }
-    @Override
-    public Optional<Company> findById(Integer id) {
-        return Optional.of(new Company(id, null, Collections.emptyMap()));
-    }
+    @Query("select c from Company c " +
+           "join fetch c.locales cl " +
+           "where c.name = :name")
+    Optional<Company> findByName(@Param("name") String name);
 
-    @Override
-    public void delete(Company entity) {
-        System.out.println("delete method");
-    }
+    List<Company> findByNameContainingIgnoreCase(String fragment);
 }

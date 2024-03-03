@@ -2,6 +2,7 @@ package by.javaguru.springdata.integration.model;
 
 import by.javaguru.springdata.integration.annotation.IT;
 import by.javaguru.springdata.model.entity.Company;
+import by.javaguru.springdata.model.repository.CompanyRepository;
 import jakarta.persistence.EntityManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -9,19 +10,20 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
 
 @IT
-@Transactional
-@Rollback   //@Commit - не ставим, т.к. будет commit в БД и 2-й раз тест не сработает
 class CompanyRepositoryTest {
+
+    private static final Integer APPLE_ID = 5;
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private CompanyRepository companyRepository;
 
     @Test
     void findById() {
@@ -39,5 +41,20 @@ class CompanyRepositoryTest {
                         "en", "description"
                 ))
                 .build();
+    }
+
+    @Test
+    void delete() {
+        var maybeCompany = companyRepository.findById(APPLE_ID);
+        assertTrue(maybeCompany.isPresent());
+        maybeCompany.ifPresent(companyRepository::delete);
+        entityManager.flush();
+        assertTrue(companyRepository.findById((APPLE_ID)).isEmpty());
+    }
+
+    @Test
+    void checkFindByQueries() {
+        companyRepository.findByName("google");
+        companyRepository.findByNameContainingIgnoreCase("a");
     }
 }
