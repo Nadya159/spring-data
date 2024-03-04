@@ -1,6 +1,7 @@
 package by.javaguru.springdata.integration.model;
 
 import by.javaguru.springdata.integration.annotation.IT;
+import by.javaguru.springdata.model.dto.PersonalInfo;
 import by.javaguru.springdata.model.entity.Role;
 import by.javaguru.springdata.model.entity.User;
 import by.javaguru.springdata.model.repository.UserRepository;
@@ -10,6 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
@@ -46,7 +49,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    void checkSort(){
+    void checkSort() {
         var sortBy = Sort.sort(User.class);
         var sort = sortBy.by(User::getFirstname)
                 .and(sortBy.by(User::getLastname));
@@ -54,5 +57,25 @@ class UserRepositoryTest {
         var sortById = Sort.by("firstname").and(Sort.by("lastname"));
         var allUsers = userRepository.findTop3ByBirthDateBefore(LocalDate.now(), sortById.descending());
         assertThat(allUsers).hasSize(3);
+    }
+
+    @Test
+    void checkPageable() {
+        var pageable = PageRequest.of(0, 2, Sort.by("id"));
+        var slice = userRepository.findAllBy(pageable);
+        assertThat(slice).hasSize(2);
+
+        slice.forEach((user -> System.out.println(user.getCompany().getName())));
+        while (slice.hasNext()){
+            slice = userRepository.findAllBy(slice.nextPageable());
+            slice.forEach(user -> System.out.println(user.getCompany().getName()));
+        }
+    }
+
+    @Test
+    void checkProjections() {
+        //var users = userRepository.findAllByCompanyId(1, PersonalInfo.class);
+        var users = userRepository.findAllByCompanyId(1);
+        assertThat(users).hasSize(2);
     }
 }
