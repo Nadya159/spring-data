@@ -1,6 +1,5 @@
 package by.javaguru.springdata.model.repository;
 
-import by.javaguru.springdata.model.dto.PersonalInfo;
 import by.javaguru.springdata.model.dto.PersonalInfoImpl;
 import by.javaguru.springdata.model.entity.Role;
 import by.javaguru.springdata.model.entity.User;
@@ -8,7 +7,6 @@ import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.*;
 
@@ -53,4 +51,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
                    "WHERE company_id = :companyId",
     nativeQuery = true)
     List<PersonalInfoImpl> findAllByCompanyId(Integer companyId);
+
+    /**
+     * Method with PartTreeJpaQuery
+     * @param role = ADMIN
+     * @param date1, date2 = Year of BirthDate User's between these dates
+     * @return List of Users
+     */
+    List<User> findByRoleAndBirthDateBetween(Role role, LocalDate date1, LocalDate date2);
 }

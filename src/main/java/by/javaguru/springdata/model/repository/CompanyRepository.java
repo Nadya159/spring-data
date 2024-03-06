@@ -18,6 +18,11 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
 
     List<Company> findByNameContainingIgnoreCase(String fragment);
 
+    /**
+     * Methods with my @Query:
+     * 1) FIND Name of Company by ID
+     * 2) UPDATE Name of found Company
+     */
     @Query("select c.name from Company c " +
            "where c.id = :id")
     String findNameById(Integer id);
@@ -26,16 +31,12 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     @Query("update Company c " +
            "set c.name = :name " +
            "where c.id = :id")
-    int updateName(String name, Integer id);
+    void updateNameById(String name, Integer id);
 
-    @Query(value = "SELECT c.id FROM Company c " +
-           "WHERE c.name LIKE 'A%'",
-            nativeQuery = true)
-    List<Integer> findByNameBeginA();
-
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    /*@Query("update User u " +
-           "set u.role = :role " +
-           "where u.id in (:ids)")*/
-    int deleteCompaniesById(List<Integer> ids);
+    /**
+     * Method with PartTreeJpaQuery
+     * @param firstLetter without IgnoreCase
+     * @return List of Companies, whose name begins with a given letter
+     */
+    List<Company> findByNameStartingWith(String firstLetter);
 }

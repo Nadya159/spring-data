@@ -2,6 +2,7 @@ package by.javaguru.springdata.integration.model;
 
 import by.javaguru.springdata.integration.annotation.IT;
 import by.javaguru.springdata.model.dto.PersonalInfo;
+import by.javaguru.springdata.model.dto.UserFilter;
 import by.javaguru.springdata.model.entity.Role;
 import by.javaguru.springdata.model.entity.User;
 import by.javaguru.springdata.model.repository.UserRepository;
@@ -66,7 +67,7 @@ class UserRepositoryTest {
         assertThat(slice).hasSize(2);
 
         slice.forEach((user -> System.out.println(user.getCompany().getName())));
-        while (slice.hasNext()){
+        while (slice.hasNext()) {
             slice = userRepository.findAllBy(slice.nextPageable());
             slice.forEach(user -> System.out.println(user.getCompany().getName()));
         }
@@ -76,6 +77,21 @@ class UserRepositoryTest {
     void checkProjections() {
         //var users = userRepository.findAllByCompanyId(1, PersonalInfo.class);
         var users = userRepository.findAllByCompanyId(1);
+        assertThat(users).hasSize(2);
+    }
+
+    @Test
+    void checkAuditing() {
+        var user1 = userRepository.findById(1L).get();
+        user1.setBirthDate(user1.getBirthDate().plusYears(1L));
+        userRepository.flush();
+    }
+
+    @Test
+    void checkFindRoleAndBirthDayBetweenYears() {
+        var users = userRepository.findByRoleAndBirthDateBetween(Role.ADMIN,
+                LocalDate.of(1980,1,1),
+                LocalDate.of(1990,12,31));
         assertThat(users).hasSize(2);
     }
 }

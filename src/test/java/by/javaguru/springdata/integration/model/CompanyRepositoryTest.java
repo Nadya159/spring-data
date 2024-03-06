@@ -2,7 +2,6 @@ package by.javaguru.springdata.integration.model;
 
 import by.javaguru.springdata.integration.annotation.IT;
 import by.javaguru.springdata.model.entity.Company;
-import by.javaguru.springdata.model.entity.Role;
 import by.javaguru.springdata.model.repository.CompanyRepository;
 import jakarta.persistence.EntityManager;
 
@@ -61,21 +60,19 @@ class CompanyRepositoryTest {
     }
 
     @Test
-    void checkUpdateName() {
+    void checkUpdateByName() {
         var company = companyRepository.getReferenceById(COMPANY_ID);
         var name = companyRepository.findNameById(COMPANY_ID);
         assertEquals(name, company.getName());
-        companyRepository.updateName("Test!", COMPANY_ID);
+        companyRepository.updateNameById("A-Test!", COMPANY_ID);
 
         company = companyRepository.getReferenceById(COMPANY_ID);
-        assertEquals("Test!", company.getName());
+        assertEquals("A-Test!", company.getName());
     }
 
     @Test
-    void checkDeleteByBeginA() {
-        List<Integer> companies = companyRepository.findByNameBeginA();
+    void checkFindByFirstLetter() {
+        List<Company> companies = companyRepository.findByNameStartingWith("A");
         assertEquals(2, companies.size());
-        /*var resultCount = companyRepository.deleteCompaniesById(companies);
-        assertEquals(2, resultCount);*/
     }
 }
